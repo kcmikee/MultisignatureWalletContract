@@ -199,11 +199,24 @@ describe("Multisig", function () {
         await loadFixture(deployMultisig);
 
       await expect(multisig.proposeQuorum(0)).to.revertedWith("invalid quorum");
+      await expect(multisig.proposeQuorum(5)).to.revertedWith("invalid quorum");
+      await expect(await multisig.quorumChangeInProgress()).to.be.false;
     });
-    // it("quorumChangeInProgress should be", async () => {
-    //   const { multisig, owner, addr1, addr3, token, signers } =
-    //     await loadFixture(deployMultisig);
-    //   await expect(multisig.quorumChangeInProgress).to.be.false;
-    // });
+  });
+
+  describe("approveQuorum", () => {
+    it("should be a valid signer", async () => {
+      const { multisig, owner, addr1, addr2, addr3, token, signers } =
+        await loadFixture(deployMultisig);
+      await expect(multisig.proposeQuorum(3));
+      await expect(multisig.connect(addr2).approveQuorum());
+      await expect(multisig.connect(addr3).approveQuorum()).to.revertedWith(
+        "not a valid signer"
+      );
+      await expect(multisig.connect(addr2).approveQuorum()).to.be.rejectedWith(
+        "already approved"
+      );
+      // await expect(await multisig.connect(owner).isValidSigner[addr3.address]).to.revertedWith("not a valid signer");
+    });
   });
 });
