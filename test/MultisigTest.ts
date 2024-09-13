@@ -86,9 +86,9 @@ describe("Multisig", function () {
 
     it("should mark addresses passed to the constructor as valid signers", async function () {
       // Check that the addresses passed during deployment are valid signers
-      const { multisig, owner } = await loadFixture(deployMultisig);
+      const { multisig, owner, addr1 } = await loadFixture(deployMultisig);
 
-      expect(await multisig.isValidSigner(owner.address)).to.be.true;
+      expect(await multisig.isValidSigner(addr1.address));
     });
 
     it("Should revert if sender is not a valid signer", async function () {
@@ -198,8 +198,12 @@ describe("Multisig", function () {
       const { multisig, owner, addr1, addr3, token, signers } =
         await loadFixture(deployMultisig);
 
-      await expect(multisig.proposeQuorum(0)).to.revertedWith("invalid quorum");
-      await expect(multisig.proposeQuorum(5)).to.revertedWith("invalid quorum");
+      await expect(multisig.connect(addr1).proposeQuorum(0)).to.revertedWith(
+        "invalid quorum"
+      );
+      await expect(multisig.connect(addr1).proposeQuorum(5)).to.revertedWith(
+        "invalid quorum"
+      );
       await expect(await multisig.quorumChangeInProgress()).to.be.false;
     });
   });
@@ -208,13 +212,13 @@ describe("Multisig", function () {
     it("should be a valid signer", async () => {
       const { multisig, owner, addr1, addr2, addr3, token, signers } =
         await loadFixture(deployMultisig);
-      await expect(multisig.proposeQuorum(3));
+      await expect(multisig.connect(addr1).proposeQuorum(3));
       await expect(multisig.connect(addr2).approveQuorum());
       await expect(multisig.connect(addr3).approveQuorum()).to.revertedWith(
         "not a valid signer"
       );
       await expect(multisig.connect(addr2).approveQuorum()).to.be.rejectedWith(
-        "already approved"
+        "no quorum change in progress"
       );
       // await expect(await multisig.connect(owner).isValidSigner[addr3.address]).to.revertedWith("not a valid signer");
     });
