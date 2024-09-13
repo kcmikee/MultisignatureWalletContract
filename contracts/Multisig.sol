@@ -41,10 +41,10 @@ contract Multisig {
 
         noOfValidSigners = uint8(_validSigners.length);
 
-        if (!isValidSigner[msg.sender]){
-            isValidSigner[msg.sender] = true;
-            noOfValidSigners += 1;
-        }
+        // if (!isValidSigner[msg.sender]){
+        //     isValidSigner[msg.sender] = true;
+        //     noOfValidSigners += 1;
+        // }
 
         require(_quorum <= noOfValidSigners, "quorum greater than valid signers");
         quorum = _quorum;
